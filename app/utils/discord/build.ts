@@ -4,12 +4,12 @@ import { getWebpackBootstrap, type WebpackBootstrap } from "../parser/webpack"
 import type { ScrapeResult } from "./assets"
 import { fetchDiscordAsset } from "./fetch"
 import type { Build } from "./types"
-import { isNonLiteral } from "../parser/query"
+import { GlobalEnvParser } from "../ast/globalEnv/GlobalEnvParser";
 
 export function saveFromScrapeResult(scrape: ScrapeResult) {
     const envVars: Record<string, string> = {}
     for (const [key, value] of Object.entries(scrape.envVars)) {
-        envVars[key] = isNonLiteral(value) ? value.expression : JSON.stringify(value)
+        envVars[key] = !GlobalEnvParser.isLiteral(value) ? value.expression : JSON.stringify(value)
     }
 
     const build: Build = {

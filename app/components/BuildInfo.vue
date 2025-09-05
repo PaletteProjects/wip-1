@@ -2,7 +2,6 @@
 import type { DiscordReleaseChannel } from '~/utils/discord/types'
 import { scrapeForBuild, type ScrapeSource } from '~/utils/discord/assets'
 import { ASSETS_BASE } from '~/utils/discord/constants'
-import { isNonLiteral } from '~/utils/parser/query'
 
 import { computedAsync, useAsyncState } from '@vueuse/core'
 import { computed, ref } from 'vue'
@@ -10,6 +9,7 @@ import { fetchDiscordAsset } from '~/utils/discord/fetch'
 import { getWebpackBootstrap } from '~/utils/parser/webpack'
 import { parseScript } from '~/utils/parser/parse'
 import { findWebpackChunk, saveBuildWebpack, saveFromScrapeResult } from '~/utils/discord/build'
+import { GlobalEnvParser } from '~/utils/ast/globalEnv/GlobalEnvParser'
 
 const scrapeConfig = ref({
     releaseChannel: "stable" as DiscordReleaseChannel,
@@ -25,9 +25,13 @@ const source = computed<ScrapeSource | undefined>(() => {
 })
 
 const isFetching = ref(false)
+const failedToFetch = ref(false)
 const scrape = computedAsync(() => scrapeForBuild({ source: source.value }), null, {
     evaluating: isFetching,
-    onError: error => console.error(error),
+    onError: error => {
+        console.error(error)
+        failedToFetch.value = true
+    },
 })
 
 watch(scrape, async (scrape) => {
@@ -61,7 +65,8 @@ watch(build, async (build) => {
         ]" class="w-48" />
 
         <div v-if="!scrape">
-            <p>Loading...</p>
+            <p v-if="failedToFetch">An error occurred while fetching the build information. Check console for more information.</p>
+            <p v-else>Loading...</p>
         </div>
         <div v-else>
             <label>Release Channel</label>
@@ -83,7 +88,7 @@ watch(build, async (build) => {
                 <div v-for="(value, key) in scrape.envVars" :key="key">
                     <label><code>{{ key }}</code></label>
                     &mdash;
-                    <code v-if="isNonLiteral(value)">{{ value.expression }}</code>
+                    <code v-if="!GlobalEnvParser.isLiteral(value)">{{ value.expression }}</code>
                     <code v-else>{{ JSON.stringify(value) }}</code>
                 </div>
             </details>

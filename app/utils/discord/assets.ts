@@ -1,6 +1,6 @@
 import type { DiscordReleaseChannel } from "./types"
-import { getEnvBuildVars, type EnvBuildVars } from "../parser/query"
 import { fetchDiscordApp } from "./fetch"
+import { GlobalEnvParser, type EnvBuildVars } from "../ast/globalEnv/GlobalEnvParser";
 
 export type ScrapeSource =
 | {
@@ -43,7 +43,8 @@ export async function scrapeForBuild(options: Partial<ScrapeOptions> = {}): Prom
     const envScriptEl = scriptEls.find(scriptEl => scriptEl.textContent?.includes("window.GLOBAL_ENV ="))
     if (!envScriptEl) throw new Error("Could not find window.GLOBAL_ENV script")
 
-    const envVars = getEnvBuildVars(envScriptEl.textContent!)
+    const parser = new GlobalEnvParser(envScriptEl.textContent!)
+    const envVars = parser.getGlobalEnvObject();
     if (!envVars) throw new Error("Could not parse window.GLOBAL_ENV")
 
     const entryScriptNames = scriptEls
@@ -52,7 +53,7 @@ export async function scrapeForBuild(options: Partial<ScrapeOptions> = {}): Prom
         .filter(pathname => pathname.startsWith("/assets/"))
         .map(pathname => pathname.replace("/assets/", ""))
 
-    const buildId = getBuildId(envVars)
+    const buildId = parser.buildId;
     if (!buildId) throw new Error("Could not find build id")
 
     return {
