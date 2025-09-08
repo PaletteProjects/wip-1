@@ -10,6 +10,7 @@ import { collectVariableUsage, type VariableInfo } from "ts-api-utils";
 import {
     type AssignmentExpression,
     type AssignmentOperatorToken,
+    type BinaryExpression,
     type CallExpression,
     createSourceFile,
     type Expression,
@@ -36,6 +37,7 @@ import {
     type LiteralToken,
     type MemberName,
     type Node,
+    type PlusToken,
     type PropertyAccessExpression,
     type ReadonlyTextRange,
     ScriptKind,
@@ -190,6 +192,21 @@ export class AstParser {
             return this.isAssignmentExpression(node);
         }
         return false;
+    }
+
+    public isBinaryPlusExpression(node: Node):
+     node is
+     & BinaryExpression
+     & {
+         readonly operatorToken: PlusToken
+     } {
+        if (!isBinaryExpression(node)) {
+            return false;
+        }
+        if (node.operatorToken.kind !== SyntaxKind.PlusToken) {
+            return false;
+        }
+        return true;
     }
 
     private static AssignmentTokens: Partial<Record<SyntaxKind, true>> = {

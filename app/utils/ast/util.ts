@@ -365,3 +365,13 @@ export function getAstNodeAtPosition(node: Node, pos: number): Node | undefined 
 function isNodeKind(kind: SyntaxKind) {
     return kind >= SyntaxKind.FirstNode;
 }
+
+export function pick<T extends Object, K extends keyof T>(...keys: K[]): (obj: T) => Pick<T, K> {
+    return (obj: T) => {
+        const ret = {} as Pick<T, K>;
+        for (const key of keys) {
+            ret[key] = obj[key];
+        }
+        return ret;
+    };
+}
