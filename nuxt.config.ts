@@ -7,6 +7,7 @@ export default defineNuxtConfig({
         tsConfig: {
             compilerOptions: {
                 noImplicitAny: false,
+                lib: ["es2023"],
                 experimentalDecorators: true,
                 emitDecoratorMetadata: true,
                 noUncheckedIndexedAccess: false,

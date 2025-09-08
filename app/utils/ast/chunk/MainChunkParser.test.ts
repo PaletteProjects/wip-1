@@ -19,11 +19,26 @@ describe(
                 )
                 .toMatchSnapshot();
             })
+            it("locates __webpack_modules__", function () {
+                const n = parser.__webpack_modules__;
+                expect(n
+                    ?.declarations
+                    .map(parser.makeRangeFromAstNode.bind(parser))
+                )
+                .toMatchSnapshot();
+            })
             it("gets js chunk hashes", function () {
                 const hashes = parser.getJsChunkHashes();
                 expect(hashes.toSorted()).toMatchSnapshot();
             });
-
+            it("gets all initial module text", function () {
+                const moduleMap = parser.getDefinedModules();
+                assert(moduleMap);
+                const keys = Object.keys(moduleMap);
+                const numEntries = parser.getModuleObject()?.properties.length;
+                expect(keys.length, "An entry was missed").to.equal(numEntries);
+                expect(keys).toMatchSnapshot();
+            });
         }
         const fullParser = new MainChunkParser(getFile("fullWeb.js"));
         const partParser = new MainChunkParser(getFile("partWeb.js"));

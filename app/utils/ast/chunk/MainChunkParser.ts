@@ -2,11 +2,11 @@ import type { VariableInfo } from "ts-api-utils";
 import { ChunkParser } from "./ChunkParser";
 import { CacheGetter, Cache } from "../../decorators";
 import {Logger} from "../../Logger";
-import { isArrowFunction, isElementAccessExpression, isNumericLiteral, isObjectLiteralExpression, isPropertyAccessExpression, isPropertyAssignment, isStringLiteralLike, NodeFlags, type Expression, type ObjectLiteralElementLike, type PropertyName } from "typescript";
+import { isArrowFunction, isElementAccessExpression, isNumericLiteral, isObjectLiteralExpression, isPropertyAccessExpression, isPropertyAssignment, isStringLiteralLike, isVariableDeclaration, NodeFlags, type Expression, type ObjectLiteralElementLike, type ObjectLiteralExpression, type PropertyName } from "typescript";
 import type { Functionish } from "../types";
 import type { HashMapEntry } from "./types";
 import { nonNullish } from "../../array";
-import { lastChild } from "../util";
+import { findParent, lastChild } from "../util";
 
 const logger = new Logger("MainChunkParser");
 
@@ -19,6 +19,15 @@ export class MainChunkParser extends ChunkParser {
     get __webpack_require__(): VariableInfo | undefined {
         for (const [ident, info] of this.vars) {
             if (ident.text === "__webpack_require__") {
+                return info;
+            }
+        }
+    }
+
+    @CacheGetter()
+    get __webpack_modules__(): VariableInfo | undefined {
+        for (const [ident, info] of this.vars) {
+            if (ident.text === "__webpack_modules__") {
                 return info;
             }
         }
@@ -122,5 +131,25 @@ export class MainChunkParser extends ChunkParser {
             return;
         }
         return [id, hash];
+    }
+
+    @Cache()
+    public override getModuleObject(): ObjectLiteralExpression | undefined {
+        const wpModules = this.__webpack_modules__;
+        if (!wpModules) {
+            logger.warn("Could not find __webpack_modules__");
+            return;
+        }
+        const decls = wpModules.declarations;
+        if (decls.length !== 1) {
+            logger.warn("Expected exactly one __webpack_modules__ declaration");
+            return;
+        }
+        const wpModulesDecl = findParent(decls[0], isVariableDeclaration)?.initializer;
+        if (!wpModulesDecl || !isObjectLiteralExpression(wpModulesDecl)) {
+            logger.warn("Could not find __webpack_modules__ object literal");
+            return;
+        }
+        return wpModulesDecl;
     }
 }
