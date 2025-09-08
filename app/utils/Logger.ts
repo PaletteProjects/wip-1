@@ -19,7 +19,7 @@ export class Logger {
 
     protected _log(level: "log" | "error" | "warn" | "info" | "debug", levelColor: string, args: any[], customFmt = "") {
         console[level](
-            `%c ${this.name} ${customFmt}`,
+            `%c ${this.name} %c %c ${level} ${customFmt}`,
             `background: ${levelColor}; color: black; font-weight: bold; border-radius: 5px;`,
             "",
             `background: ${this.color}; color: black; font-weight: bold; border-radius: 5px;`

@@ -10,6 +10,7 @@ import { getWebpackBootstrap } from '~/utils/parser/webpack'
 import { parseScript } from '~/utils/parser/parse'
 import { findWebpackChunk, saveBuildWebpack, saveFromScrapeResult } from '~/utils/discord/build'
 import { GlobalEnvParser } from '~/utils/ast/globalEnv/GlobalEnvParser'
+import { MainChunkParser } from '~/utils/ast/chunk/MainChunkParser'
 
 const scrapeConfig = ref({
     releaseChannel: "stable" as DiscordReleaseChannel,
@@ -32,6 +33,15 @@ const scrape = computedAsync(() => scrapeForBuild({ source: source.value }), nul
         console.error(error)
         failedToFetch.value = true
     },
+})
+
+const initialModules = computedAsync(async () => {
+    console.log(scrape.value);
+    const text = await (await fetchDiscordAsset(scrape.value?.entryScripts.find(s => s.startsWith("web."))!)).text()
+    const parser = new MainChunkParser(text);
+    const definedModules = parser.getDefinedModules();
+    console.log(definedModules);
+    return definedModules;
 })
 
 watch(scrape, async (scrape) => {
@@ -82,7 +92,15 @@ watch(build, async (build) => {
                 </div>
             </details>
             <br>
-
+            <details>
+                <summary>Initial Modules in web.js</summary>
+                <div v-for="(content, module) in initialModules">
+                    <details>
+                        <summary>Module id {{ module }}</summary>
+                        <code>{{ content }}</code>
+                    </details>
+                </div>
+            </details>
             <details>
                 <summary>Environment Variables</summary>
                 <div v-for="(value, key) in scrape.envVars" :key="key">
