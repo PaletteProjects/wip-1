@@ -6,6 +6,7 @@ import { isArrowFunction, isElementAccessExpression, isNumericLiteral, isObjectL
 import type { Functionish } from "../types";
 import type { HashMapEntry } from "./types";
 import { nonNullish } from "../../array";
+import { lastChild } from "../util";
 
 const logger = new Logger("MainChunkParser");
 
@@ -78,8 +79,8 @@ export class MainChunkParser extends ChunkParser {
             return [];
         }
 
-        const hashMap = hashMapAccess.expression;
-        if (!isObjectLiteralExpression(hashMap)) {
+        let hashMap = lastChild(hashMapAccess.expression, isObjectLiteralExpression);
+        if (!hashMap) {
             logger.warn("expected object literal expression");
             return [];
         }

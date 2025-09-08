@@ -15,10 +15,7 @@ describe(
                 const n = parser.__webpack_require__;
                 expect(n
                     ?.declarations
-                    .map(({pos, end}) => ({
-                        pos: parser.positionAt(pos),
-                        end: parser.positionAt(end)
-                    }))
+                    .map(parser.makeRangeFromAstNode.bind(parser))
                 )
                 .toMatchSnapshot();
             })
