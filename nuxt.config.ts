@@ -10,7 +10,8 @@ export default defineNuxtConfig({
                 experimentalDecorators: true,
                 emitDecoratorMetadata: true,
                 noUncheckedIndexedAccess: false,
-            }
+            },
+            exclude: ["**/__test__/**"]
         }
     },
 
