@@ -36,12 +36,10 @@ const scrape = computedAsync(() => scrapeForBuild({ source: source.value }), nul
 })
 
 const initialModules = computedAsync(async () => {
-    console.log(scrape.value);
-    const text = await (await fetchDiscordAsset(scrape.value?.entryScripts.find(s => s.startsWith("web."))!)).text()
+    if (!scrape.value) return;
+    const text = await (await fetchDiscordAsset(scrape?.value.entryScripts.find(s => s.startsWith("web."))!)).text();
     const parser = new MainChunkParser(text);
-    const definedModules = parser.getDefinedModules();
-    console.log(definedModules);
-    return definedModules;
+    return parser.getDefinedModules();
 })
 
 watch(scrape, async (scrape) => {
