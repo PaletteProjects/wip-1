@@ -11,6 +11,10 @@ export class Logger {
         return ["%c %c %s ", "", `background: ${color}; color: black; font-weight: bold; border-radius: 5px;`, title];
     }
 
+    static create(name: string, color: string = "white") {
+        return typeof window === "undefined" ? new NoopLogger() : new Logger(name, color);
+    }
+
     constructor(public name: string, public color: string = "white") { }
 
     protected _log(level: "log" | "error" | "warn" | "info" | "debug", levelColor: string, args: any[], customFmt = "") {
@@ -49,8 +53,8 @@ export class Logger {
 }
 
 export class NoopLogger extends Logger {
-    constructor() {
-        super("NoopLogger");
+    constructor(name: string = "NoopLoggerl", color: string = "white") {
+        super(name, color);
     }
     protected override _log() { }
 }

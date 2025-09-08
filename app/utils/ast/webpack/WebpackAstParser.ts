@@ -65,7 +65,7 @@ import {
     type SourceFile,
 } from "typescript";
 
-const logger: Logger = typeof window === "undefined" ? new NoopLogger() : new Logger("AstParser");
+const logger: Logger = Logger.create("WebpackAstParser");
 
 // FIXME: rewrite to use module cache
 

@@ -375,3 +375,7 @@ export function pick<T extends Object, K extends keyof T>(...keys: K[]): (obj: T
         return ret;
     };
 }
+
+export function error(msg?: string): never {
+    throw new Error(msg);
+}

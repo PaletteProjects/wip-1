@@ -19,6 +19,7 @@ import {
     isBigIntLiteral,
     isBinaryExpression,
     isConstructorDeclaration,
+    isExpressionStatement,
     isFunctionDeclaration,
     isFunctionExpression,
     isFunctionLike,
@@ -30,6 +31,7 @@ import {
     isPropertyAccessExpression,
     isRegularExpressionLiteral,
     isSetAccessorDeclaration,
+    isStringLiteral,
     isStringLiteralLike,
     isVariableDeclaration,
     isVariableDeclarationList,
@@ -48,7 +50,7 @@ import {
 } from "typescript";
 import { Format } from "@sadan4/devtools-pretty-printer";
 
-const logger: Logger = typeof window === "undefined" ? new NoopLogger() : new Logger("AstParser");
+const logger: Logger = Logger.create("AstParser");
 
 export class AstParser {
     public static withFormattedText(text: string): AstParser {
@@ -253,6 +255,55 @@ export class AstParser {
         const varDecl = findParent(decl, isVariableDeclarationList);
 
         return ((varDecl?.flags ?? 0) & SyntaxKind.ConstKeyword) !== 0 ? [decl] : false;
+    }
+
+    private static DIRECTIVE_PREFIX = "use ";
+
+    /**
+     * @returns the directive string without the `use ` prefix
+     * @example
+     * ```js
+     * "use strict"; // returns "strict"
+     * "use client"; // returns "client
+     * "use server"; // returns "server"
+     * ```
+     */
+    isDirective(node: Node | undefined): string | false {
+        if (!node) {
+            return false;
+        }
+
+        if (!isExpressionStatement(node)) {
+            return false;
+        }
+
+        const { expression } = node;
+
+        if (!isStringLiteral(expression)) {
+            return false;
+        }
+        const { text }  = expression;
+
+        if (!text.startsWith(AstParser.DIRECTIVE_PREFIX)) {
+            return false;
+        }
+
+        if (text.length === AstParser.DIRECTIVE_PREFIX.length) {
+            return false;
+        }
+
+        return text.slice(AstParser.DIRECTIVE_PREFIX.length);
+    }
+
+    public tryParseStringOrNumberLiteral(node: Node | undefined): string | undefined {
+        if  (!node) {
+            return;
+        }
+        if (isStringLiteralLike(node)) {
+            return node.text;
+        } else if (isNumericLiteral(node)) {
+            return node.text;
+        }
     }
 
     // TODO: add tests for this

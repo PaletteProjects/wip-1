@@ -5,7 +5,7 @@ import {Logger} from "../../Logger";
 import { isArrowFunction, isElementAccessExpression, isNumericLiteral, isObjectLiteralExpression, isPropertyAccessExpression, isPropertyAssignment, isStringLiteralLike, NodeFlags, type Expression, type ObjectLiteralElementLike, type PropertyName } from "typescript";
 import type { Functionish } from "../types";
 import type { HashMapEntry } from "./types";
-import { nonNullish } from "../../filters";
+import { nonNullish } from "../../array";
 
 const logger = new Logger("MainChunkParser");
 
@@ -91,14 +91,11 @@ export class MainChunkParser extends ChunkParser {
     }
 
 
-    private tryParseHashMapKey(node: PropertyName): string | undefined {
-        if (isStringLiteralLike(node)) {
-            return node.text;
-        }
-        if (isNumericLiteral(node)) {
-            return node.text;
-        }
-        return;
+    /**
+     * used to parse map in main chunk and chunk id in lazy chunk
+     */
+    protected tryParseHashMapKey(node: PropertyName): string | undefined {
+        return this.tryParseStringOrNumberLiteral(node);
     }
 
     private tryParseHashMapValue(node: Expression): string | undefined {

@@ -8,7 +8,7 @@ interface NonLiteral {
     expression: string;
 }
 
-const logger = new Logger("GlobalEnvParser");
+const logger = Logger.create("GlobalEnvParser");
 
 export type MaybeLiteralJsonType = JsonType | NonLiteral;
 export type JsonType = string | number | boolean | null | NonLiteral | MaybeLiteralJsonType[] | { [key: string]: MaybeLiteralJsonType }
