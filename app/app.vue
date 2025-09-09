@@ -9,15 +9,47 @@
 @layer base {
     @media (prefers-color-scheme: dark) {
         body {
-            background-color: #1a1b26;
-            color: #c0caf5;
+            background-color: var(--color-bg-100);
+            color: var(--color-bg-fg);
         }
         a {
-            color: oklch(0.719 0.1322 264.2);
+            color: var(--color-info);
             &:visited {
-                color: #9d7cd8;
+                color: var(--color-secondary);
             }
         }
     }
+}
+:root {
+    --color-bg-100: #1a1b26;
+    --color-bg-200: #16161e;
+    --color-bg-300: #0c0e14;
+    --color-bg-fg: #c0caf5;
+    --color-bg-fg-500: var(--color-bg-fg);
+    --color-bg-fg-600: #a9b1d6;
+    --color-bg-fg-700: #737aa2;
+    --color-bg-fg-800: #565f89;
+    --color-fg-fg: #16161d;
+    --color-primary: #7aa2f7;
+    --color-secondary: #9d7cd8;
+    --color-accent: #4fd6be;
+    --color-neutral: #161928;
+    --color-neutral-content: #c0caf5;
+    --color-info: oklch(0.719 0.1322 264.2);
+    --color-info-500: var(--color-info);
+    --color-info-600: oklch(0.639 0.1322 264.2);
+    --color-info-700: oklch(0.559 0.1322 264.2);
+    --color-success: #c3e88d;
+    --color-warning: #ffc777;
+    --color-error: #ff757f;
+    --scrollbar-track-color: var(--color-bg-200);
+    --scrollbar-thumb-color: var(--color-bg-fg-600);
+}
+body {
+    margin: 0px;
+}
+#__nuxt {
+    max-width: 100vw;
+    max-height: 100vh;
 }
 </style>

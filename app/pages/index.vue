@@ -1,5 +1,5 @@
 <template>
     <ClientOnly>
-        <BuildInfo />
+        <Viewer />
     </ClientOnly>
 </template>
